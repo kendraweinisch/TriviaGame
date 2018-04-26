@@ -1,161 +1,204 @@
+/**
+ * page loads: display title of game and start button
+ * user clicks start button
+ * 10 questions and answer choices show up on page
+ * timer appears in lefthand corner and starts counting down
+ * user clicks submit/timer runs out
+ * questions disappear
+ * results info box appears
+ * //correct, incorrect, blank, score
+ * score={
+ * correct : 4, 
+ * incorrect : 4,
+ * blank : 2
+ * }
+ * 
+ * 
+ */
+
+
 //Time function
 
 $(document).ready(function () {
-	var i = 0;
 	var countdownTimer = {
 		time: 60,
 		DOM: $('#timer'),
 		reset: function () {
-			console.log("resetting timer")
 			countdownTimer.time = 60;
-
 		},
 		start: function () {
-			console.log("starting timer")
 			countdownTimer.update()
 			countdownTimer.counter = setInterval(countdownTimer.count, 1000);
 		},
 		stop: function () {
-			console.log("stopping timer")
 			clearInterval(countdownTimer.counter);
 		},
 		update: function () {
 			countdownTimer.DOM.text(countdownTimer.time)
 		},
-
 		count: function () {
-			console.log("decrementing time")
 			countdownTimer.time--;
-			console.log(countdownTimer.time);
 			countdownTimer.update()
 
 			if (countdownTimer.time < 1) {
-				console.log("Timer is below 1")
-
 				countdownTimer.stop()
-				collectUserAnswers()
-				$('#questionForm').hide()
+				handleEndOfGame()
 			}
 
 		}
-	};
+	}
+	var questions = [
+		{
+			question: "How many claspers does a female shark have?",
+			answerList: [
+				{ value: "0", correct: true },
+				{ value: "2", correct: false },
+				{ value: "4", correct: false },
+				{ value: "5", correct: false },
+			]
+		}, {
+			question: "Which of the following is NOT a type of shark?",
+			answerList: [
+				{ value: "Hammerhead", correct: false },
+				{ value: "Pilot Whale", correct: true },
+				{ value: "Tiger", correct: false },
+				{ value: "Whale Shark", correct: false },
+			]
+		}, {
+			question: "Approximately how many species of shark are there?",
+			answerList: [
+				{ value: "250", correct: false },
+				{ value: "470", correct: true },
+				{ value: "1230", correct: false },
+				{ value: "1500", correct: false },
+			]
+		}, {
+			question: "Which is the largest type of shark?",
+			answerList: [
+				{ value: "Hammerhead", correct: false },
+				{ value: "Blue", correct: false },
+				{ value: "Tiger", correct: false },
+				{ value: "Whale Shark", correct: true },
+			]
+		}, {
+			question: "Which is the smallest type of shark?",
+			answerList: [
+				{ value: "Blue", correct: false },
+				{ value: "Leopard", correct: false },
+				{ value: "Dwarf Lantern", correct: true },
+				{ value: "Angel", correct: false },
+			]
+		}, {
+			question: "How many gills does a typical shark have on each side of its body?",
+			answerList: [
+				{ value: "2", correct: false },
+				{ value: "4", correct: false },
+				{ value: "5", correct: true },
+				{ value: "8", correct: false },
+			]
+		}, {
+			question: "Which sharks can swim in fresh water?",
+			answerList: [
+				{ value: "Bull", correct: true },
+				{ value: "Mako", correct: false },
+				{ value: "Tiger", correct: false },
+				{ value: "Blue", correct: false },
+			]
+		}, {
+			question: "Which of the following is NOT in a shark's diet?",
+			answerList: [
+				{ value: "Seal", correct: false },
+				{ value: "Fish", correct: false },
+				{ value: "Plastic", correct: true },
+				{ value: "Sea Turtle", correct: false },
+			]
+		}, {
+			question: "Which of the following sharks lives in cold water?",
+			answerList: [
+				{ value: "White", correct: true },
+				{ value: "Nurse", correct: false },
+				{ value: "Caribbean Gray Reef", correct: false },
+				{ value: "Whale Shark", correct: false },
+			]
+		}, {
+			question: "Which of the following sharks lives in Scotland?",
+			answerList: [
+				{ value: "Walking", correct: true },
+				{ value: "Lemon", correct: false },
+				{ value: "Cookiecutter", correct: false },
+				{ value: "Basking", correct: false },
+			]
+		}
+	];
 
-	// Questions, answer choices, and correct answer in array called questions
+	$(document).on("click", "#start", setUpGame)
 
-	var questions = [{
-		question: "How many claspers does a female shark have?",
-		answerList: ["0", "2", "4", "5"],
-		answer: "0"
-	}, {
-		question: "Which of the following is NOT a type of shark?",
-		answerList: ["Hammerhead", "Pilot Whale", "Tiger", "Whale Shark"],
-		answer: "Pilot Whale"
-	}, {
-		question: "Approximately how many species of shark are there?",
-		answerList: ["250", "470", "1250", "1500"],
-		answer: "470"
-	}, {
-		question: "Which is the largest type of shark?",
-		answerList: ["Hammerhead", "Blue", "Tiger", "Whale Shark"],
-		answer: "Whale Shark"
-	}, {
-		question: "Which is the smallest type of shark?",
-		answerList: ["Blue", "Leopard", "Dwarf Lantern", "Angel"],
-		answer: "Dwarf Lantern"
-	}, {
-		question: "How many gills does a typical shark have?",
-		answerList: ["2", "4", "5", "8"],
-		answer: "5"
-	}, {
-		question: "Which sharks can swim in fresh water?",
-		answerList: ["Bull", "Mako", "Tiger", "Blue"],
-		answer: "Bull"
-	}, {
-		question: "Which of the following is NOT in a shark's diet?",
-		answerList: ["Seal", "Fish", "Plastic", "Sea Turtle"],
-		answer: "Plastic"
-	}, {
-		question: "Which of the following sharks lives in cold water?",
-		answerList: ["White", "Nurse", "Caribbean Gray Reef", "Whale Shark"],
-		answer: "White"
-	}, {
-		question: "Which of the following sharks lives in Scotland?",
-		answerList: ["Walking", "Lemon", "Cookiecutter", "Basking"],
-		answer: "Basking"
-	}];
-
-
-
-
-	// When user presses START button, new page with questions loads
-	$(document).on("click", "#start", function () {
+	function setUpGame() {
 		$("#start").hide()
-		// $(".panel").show()
+		renderQuestions()
+		countdownTimer.start()
+		$('#submit').on("click", handleEndOfGame)
+	}
+
+	function renderQuestions() {
 		var form = $('<form id="questionForm">')
 		for (var i = 0; i < questions.length; i++) {
-
 			var divHolder = $('<div>')
 			var screenQuestionHolder = $('<p>').text(questions[i].question)
 			divHolder.append(screenQuestionHolder)
-
-
-
-			divHolder.append("<input type='radio' value='" + questions[i].answerList[0] + "' name='" + i + "'>" + questions[i].answerList[0] + "</input> </br>")
-			divHolder.append("<input type='radio' value='" + questions[i].answerList[1] + "' name='" + i + "'>" + questions[i].answerList[1] + "</input> </br>")
-			divHolder.append("<input type='radio' value='" + questions[i].answerList[2] + "' name='" + i + "'>" + questions[i].answerList[2] + "</input> </br>")
-			divHolder.append("<input type='radio' value='" + questions[i].answerList[3] + "' name='" + i + "'>" + questions[i].answerList[3] + "</input> </br>")
+			divHolder.append("<input type='radio' value='" + questions[i].answerList[0].correct + "' name='" + i + "'>" + questions[i].answerList[0].value + "</input> </br>")
+			divHolder.append("<input type='radio' value='" + questions[i].answerList[1].correct + "' name='" + i + "'>" + questions[i].answerList[1].value + "</input> </br>")
+			divHolder.append("<input type='radio' value='" + questions[i].answerList[2].correct + "' name='" + i + "'>" + questions[i].answerList[2].value + "</input> </br>")
+			divHolder.append("<input type='radio' value='" + questions[i].answerList[3].correct + "' name='" + i + "'>" + questions[i].answerList[3].value + "</input> </br>")
 			form.append(divHolder)
-
 		}
 		$('#questions').append(form);
-		countdownTimer.start()
+	}
+renderQuestions()
 
 
-	})
+	function collectUserAnswers() {
+		var answerForm = $('#questionForm')
+		// TODO: handle result info box stuff
+		var answersArray = answerForm.serializeArray()
+		console.log(answersArray)
+		return answersArray.map(function (answer) {
+			return answer.value
+		})
+	}
+	function handleEndOfGame(answers) {
+		// hide questions
+		$('#questionForm').hide()
+		var answers = collectUserAnswers()
+		console.log(answers)
+		renderResults(answers)
+		//create display box element
+		//render display box
 
-	
-// 	function collectUserAnswers() {
-// 		var answerForm = $('#questionForm')
+	}
+	function renderResults(answers) {
+		var correct = countCorrect(answers)
+		var score = {
+			correct: correct,
+			incorrect: answers.length - correct,
+			blank: 10 - answers.length
 
-// 		var answersArray = answerForm.serializeArray()
-
-// 	}
-// 	$('#submit').on("click", collectUserAnswers)
-// 	console.log(answersArray)
-// })
-// 	// function compareAnswers() {
-	// 	for (var j = 0; j < answersArray.length; j++){
-	// 		if answersArray[j] === TK
-	// 	}
-	// }
-
-	// 	// Make variables for the scoreboard
-	// 	var correct = 0
-	// 	var incorrect = 0
-	// 	var blank = 0
-
-	// Append userGuess array with each new answer chosen
-	// $(document).on("click", function () {
-	// .appd[userGuess]
-	// }
-
-	// Compare userGuess to correct answer
-	// if (userGuess[i] === answer[i]) {
-	// 		correct++
-	// 	}
-	// 	else if (userGuess[i] !== answer[i]) {
-	// 		incorrect++
-	// 	}
-	// 	else (blank++)
-
-	// 	// Final scoreboard page with final scores for variables correct, incorrect, blank
-
-	// 	// CLICK EVENTS
-	// 	$(document).on("click", "#start", function () {
-	// 		game.start();
-	// 	});
-	// 	$(document).on("click", "#done", function () {
-	// 		game.done();
-	// 	}
+		}
+		var resultDiv = $('<div>')
+		var correctSpan = $('<span>').text(score.correct)
+		var incorrectSpan = $('<span>').text(score.incorrect)
+		var blankSpan = $('<span>').text(score.blank)
+		resultDiv.append([correctSpan, incorrectSpan, blankSpan])
+		$('.scoreboard').append(resultDiv)
+	}
+	function countCorrect(answers) {
+		var count = 0
+		for (var i = 0; i < answers.length; i++) {
+			if (answers[i] === true) {
+				count++
+			}
+		}
+		return count
+	}
 
 });
